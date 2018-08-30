@@ -5,7 +5,7 @@
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Xinlei Chen, based on code from Ross Girshick
 # --------------------------------------------------------
-
+#通常，我们会直接调用这个函数，如果要测试自己的模型和数据，这里需要修改
 """
 Demo script showing detections in sample images.
 
@@ -19,6 +19,7 @@ from __future__ import print_function
 import sys
 sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 
+import tools._init_paths
 from model.config import cfg
 from model.test import im_detect
 from model.nms_wrapper import nms
@@ -50,46 +51,54 @@ def vis_detections(im, class_name, dets, thresh=0.5):
         return
 
     im = im[:, :, (2, 1, 0)]
-    fig, ax = plt.subplots(figsize=(12, 12))
-    ax.imshow(im, aspect='equal')
-    for i in inds:
-        bbox = dets[i, :4]
-        score = dets[i, -1]
+    # fig, ax = plt.subplots(figsize=(12, 12))
+    #ax.imshow(im, aspect='equal')
+    if class_name=='person':
+        fig, ax = plt.subplots(figsize=(12, 12))
+        ax.imshow(im, aspect='equal')
+        for i in inds:
+            bbox = dets[i, :4]
+            score = dets[i, -1]
 
-        ax.add_patch(
-            plt.Rectangle((bbox[0], bbox[1]),
-                          bbox[2] - bbox[0],
-                          bbox[3] - bbox[1], fill=False,
-                          edgecolor='red', linewidth=3.5)
-            )
-        ax.text(bbox[0], bbox[1] - 2,
-                '{:s} {:.3f}'.format(class_name, score),
-                bbox=dict(facecolor='blue', alpha=0.5),
-                fontsize=14, color='white')
+            ax.add_patch(
+                plt.Rectangle((bbox[0], bbox[1]),
+                              bbox[2] - bbox[0],
+                              bbox[3] - bbox[1], fill=False,
+                              edgecolor='red', linewidth=3.5)
+                )
+            ax.text(bbox[0], bbox[1] - 2,
+                    '{:s} {:.3f}'.format(class_name, score),
+                    bbox=dict(facecolor='blue', alpha=0.5),
+                    fontsize=14, color='white')
 
-    ax.set_title(('{} detections with '
-                  'p({} | box) >= {:.1f}').format(class_name, class_name,
-                                                  thresh),
-                  fontsize=14)
-    plt.axis('off')
-    plt.tight_layout()
-    plt.draw()
+        ax.set_title(('{} detections with '
+                      'p({} | box) >= {:.1f}').format(class_name, class_name,
+                                                      thresh),
+                      fontsize=14)
+        plt.axis('off')
+        plt.tight_layout()
+        plt.draw()
 
 def demo(sess, net, image_name):
     """Detect object classes in an image using pre-computed object proposals."""
 
-    # Load the demo image
+    # 加载图片
     im_file = os.path.join(cfg.DATA_DIR, 'demo', image_name)
     im = cv2.imread(im_file)
 
+    #im = cv2.resize(im, None, fx=0.2, fy=0.2, interpolation=cv2.INTER_CUBIC)
+
     # Detect all object classes and regress object bounds
+    #检测所有object和object的bonds，输出时间以及proposals的数量
     timer = Timer()
     timer.tic()
     scores, boxes = im_detect(sess, net, im)
     timer.toc()
     print('Detection took {:.3f}s for {:d} object proposals'.format(timer.total_time, boxes.shape[0]))
 
+
     # Visualize detections for each class
+    #显示画出来boundingbox的图片，并且表明所属类以及score
     CONF_THRESH = 0.8
     NMS_THRESH = 0.3
     for cls_ind, cls in enumerate(CLASSES[1:]):
@@ -118,10 +127,11 @@ if __name__ == '__main__':
     args = parse_args()
 
     # model path
-    demonet = args.demo_net
-    dataset = args.dataset
+    demonet = args.demo_net #vgg16
+    dataset = args.dataset #pascal_voc_0712
     # tfmodel = os.path.join('output', demonet, DATASETS[dataset][0], 'default',
     #                           NETS[demonet][0])
+
 
     tfmodel = "/Users/huan/code/PycharmProjects/tf-faster-rcnn/output/vgg16/voc_2007_trainval+voc_2012_trainval/default/vgg16_faster_rcnn_iter_110000.ckpt"
     if not os.path.isfile(tfmodel + '.meta'):
@@ -129,6 +139,7 @@ if __name__ == '__main__':
                        'our server and place them properly?').format(tfmodel + '.meta'))
 
     # set config
+    #使用gpu
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
     tfconfig.gpu_options.allow_growth=True
 
@@ -143,13 +154,18 @@ if __name__ == '__main__':
         raise NotImplementedError
     net.create_architecture("TEST", 21,
                           tag='default', anchor_scales=[8, 16, 32])
+    #加载模型
     saver = tf.train.Saver()
     saver.restore(sess, tfmodel)
 
     print('Loaded network {:s}'.format(tfmodel))
 
-    im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
-                '001763.jpg', '004545.jpg']
+    # im_names = ['000456.jpg', '000542.jpg', '001150.jpg',
+    #             '001763.jpg', '004545.jpg']
+
+    im_names = ['0014_14.png', '0066_66.png', '0339_339.png',
+                '0592_592.png', '0485_485.png']
+
     for im_name in im_names:
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         print('Demo for data/demo/{}'.format(im_name))

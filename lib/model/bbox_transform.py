@@ -4,6 +4,17 @@
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Ross Girshick
 # --------------------------------------------------------
+# 　 bbox_overlaps_batch　
+#    输入：3输出的anchor，gt_boxes
+# 　　过程：生成anchor与gt_boxes的iou矩阵overlaps。
+# 　　　　　第i行第j列为第i个anchor与第j个gt_boxes的IOU值
+# 　　输出：overlaps
+#
+#     compute_target_batch
+#     输入：3输出的anchor，gt_boxes(假设anchor数量为N，gt_boxes数量为M)
+# 　　过程：生成[N, M, 4]矩阵bbox_target.[i,j,4]代表第i个anchor的4个参数与第j个gt_boxes
+# 　　　　　的4个参数的真正偏移量。
+# 　　输出：bbox_target
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

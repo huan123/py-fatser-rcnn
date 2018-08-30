@@ -7,6 +7,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from tensorflow.contrib.slim import losses
@@ -467,6 +469,7 @@ class Network(object):
     return feat
 
   # only useful during testing mode
+  #image是缩放后的图片， im_info是缩放比例
   def test_image(self, sess, image, im_info):
     feed_dict = {self._image: image,
                  self._im_info: im_info}
@@ -476,6 +479,7 @@ class Network(object):
                                                      self._predictions['bbox_pred'],
                                                      self._predictions['rois']],
                                                     feed_dict=feed_dict)
+    #返回分类得分，分类比例
     return cls_score, cls_prob, bbox_pred, rois
 
   def get_summary(self, sess, blobs):

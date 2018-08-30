@@ -7,6 +7,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 import cv2
 import numpy as np
 try:
@@ -32,9 +34,11 @@ def _get_image_blob(im):
     im_scale_factors (list): list of image scales (relative to im) used
       in the image pyramid
   """
+  #转换类型
   im_orig = im.astype(np.float32, copy=True)
   im_orig -= cfg.PIXEL_MEANS
 
+  #im_shape0,1,2分别存图片长，宽，通道数量
   im_shape = im_orig.shape
   im_size_min = np.min(im_shape[0:2])
   im_size_max = np.max(im_shape[0:2])
@@ -43,25 +47,30 @@ def _get_image_blob(im):
   im_scale_factors = []
 
   for target_size in cfg.TEST.SCALES:
+    #目标图片的大小与现在图片最小边的比例
     im_scale = float(target_size) / float(im_size_min)
     # Prevent the biggest axis from being more than MAX_SIZE
     if np.round(im_scale * im_size_max) > cfg.TEST.MAX_SIZE:
       im_scale = float(cfg.TEST.MAX_SIZE) / float(im_size_max)
+    #根据比例大小设置原图
     im = cv2.resize(im_orig, None, None, fx=im_scale, fy=im_scale,
             interpolation=cv2.INTER_LINEAR)
+    #存放缩放比例的数组
     im_scale_factors.append(im_scale)
+    #存放缩放后的原图
     processed_ims.append(im)
 
   # Create a blob to hold the input images
+  #存放缩放之后的图片
   blob = im_list_to_blob(processed_ims)
-
+  #返回缩放之后的图片和比例
   return blob, np.array(im_scale_factors)
 
 def _get_blobs(im):
   """Convert an image and RoIs within that image into network inputs."""
   blobs = {}
   blobs['data'], im_scale_factors = _get_image_blob(im)
-
+  #返回缩放之后的原图和缩放比例
   return blobs, im_scale_factors
 
 def _clip_boxes(boxes, im_shape):
@@ -84,12 +93,15 @@ def _rescale_boxes(boxes, inds, scales):
   return boxes
 
 def im_detect(sess, net, im):
+  #调用函数得到缩放之后的图片以及比例
   blobs, im_scales = _get_blobs(im)
   assert len(im_scales) == 1, "Only single-image batch implemented"
 
   im_blob = blobs['data']
+  #blobs存放图片的长，宽，和缩放比例
   blobs['im_info'] = np.array([im_blob.shape[1], im_blob.shape[2], im_scales[0]], dtype=np.float32)
 
+  #分类得分，分类比例
   _, scores, bbox_pred, rois = net.test_image(sess, blobs['data'], blobs['im_info'])
   
   boxes = rois[:, 1:5] / im_scales[0]

@@ -3,11 +3,14 @@
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Zheqi he, Xinlei Chen, based on code from Ross Girshick
 # --------------------------------------------------------
+#测试fast rcnn网络。主要就是一些参数配置。
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import _init_paths
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
+import tools._init_paths
 from model.test import test_net
 from model.config import cfg, cfg_from_file, cfg_from_list
 from datasets.factory import get_imdb

@@ -3,11 +3,14 @@
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Zheqi He, Xinlei Chen, based on code from Ross Girshick
 # --------------------------------------------------------
+#train_net.py：使用fast rcnn，训练自己数据集的网络模型
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import _init_paths
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
+import tools._init_paths
 from model.train_val import get_training_roidb, train_net
 from model.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_output_tb_dir
 from datasets.factory import get_imdb
@@ -16,7 +19,7 @@ import argparse
 import pprint
 import numpy as np
 import sys
-
+import argparse
 import tensorflow as tf
 from nets.vgg16 import vgg16
 from nets.resnet_v1 import resnetv1
@@ -79,7 +82,7 @@ def combined_roidb(imdb_names):
     for r in roidbs[1:]:
       roidb.extend(r)
     tmp = get_imdb(imdb_names.split('+')[1])
-    imdb = datasets.imdb.imdb(imdb_names, tmp.classes)
+    imdb = lib.datasets.imdb.imdb(imdb_names, tmp.classes)
   else:
     imdb = get_imdb(imdb_names)
   return imdb, roidb
@@ -97,7 +100,7 @@ if __name__ == '__main__':
     cfg_from_list(args.set_cfgs)
 
   print('Using config:')
-  pprint.pprint(cfg)
+  print.pprint(cfg)
 
   np.random.seed(cfg.RNG_SEED)
 

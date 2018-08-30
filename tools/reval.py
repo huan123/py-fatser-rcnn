@@ -12,7 +12,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import _init_paths
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
+import tools._init_paths
 from model.test import apply_nms
 from model.config import cfg
 from datasets.factory import get_imdb
