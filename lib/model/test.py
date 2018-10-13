@@ -150,7 +150,9 @@ def apply_nms(all_boxes, thresh):
 def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0.):
   np.random.seed(cfg.RNG_SEED)
   """Test a Fast R-CNN network on an image database."""
+  # todo ：这里l为了方便测试，可以选择临时写死num_images的值=10，后面需要改回num_images = len(imdb.image_index)
   num_images = len(imdb.image_index)
+  #num_images = 10
   # all detections are collected into:
   #  all_boxes[cls][image] = N x 5 array of detections in
   #  (x1, y1, x2, y2, score)
@@ -195,6 +197,9 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0.):
     print('im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
         .format(i + 1, num_images, _t['im_detect'].average_time,
             _t['misc'].average_time))
+    # todo : 增加 i == 9 break 为了验证自己在voc文件夹下训练的模型，测试10次
+    # if i == 9:
+    #    break
 
   det_file = os.path.join(output_dir, 'detections.pkl')
   with open(det_file, 'wb') as f:

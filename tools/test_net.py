@@ -4,15 +4,75 @@
 # Written by Zheqi he, Xinlei Chen, based on code from Ross Girshick
 # --------------------------------------------------------
 #测试fast rcnn网络。主要就是一些参数配置。
+#coco
+# --imdb
+# coco_2014_minival
+# --model
+# output/vgg16/coco_2014_train+coco_2014_valminusminival/default/vgg16_faster_rcnn_iter_490000.ckpt
+# --cfg
+# experiments/cfgs/vgg16.yml
+# --net
+# vgg16
+# --set
+# ANCHOR_SCALES
+# [4,8,16,32]
+# ANCHOR_RATIOS
+# [0.5,1,2]
+
+#自己的数据集
+# --imdb
+# coco_2014_minival
+# --model
+# output/vgg16/coco_2014_train+coco_2014_valminusminival/default/vgg16_faster_rcnn_iter_490.ckpt
+# --cfg
+# experiments/cfgs/vgg16.yml
+# --net
+# vgg16
+# --set
+# ANCHOR_SCALES
+# [4,8,16,32]
+# ANCHOR_RATIOS
+# [0.5,1,2]
+
+
+###voc
+# --imdb
+# voc_2007_test
+# --model
+# output/vgg16/voc_2007_trainval+voc_2012_trainval/default/vgg16_faster_rcnn_iter_110000.ckpt
+# --cfg
+# experiments/cfgs/vgg16.yml
+# --net
+# vgg16
+# --set
+# ANCHOR_SCALES
+# [8,16,32]
+# ANCHOR_RATIOS
+# [0.5,1,2]
+#使用自己的模型
+# --imdb
+# voc_2007_test
+# --model
+# output/vgg16/voc_2007_trainval/default/vgg16_faster_rcnn_iter_110.ckpt
+# --cfg
+# experiments/cfgs/vgg16.yml
+# --net
+# vgg16
+# --set
+# ANCHOR_SCALES
+# [8,16,32]
+# ANCHOR_RATIOS
+# [0.5,1,2]
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 import sys
-sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
+#sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 import tools._init_paths
 from model.test import test_net
 from model.config import cfg, cfg_from_file, cfg_from_list
+
 from datasets.factory import get_imdb
 import argparse
 import pprint

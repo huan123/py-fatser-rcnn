@@ -4,7 +4,7 @@
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Ross Girshick
 # --------------------------------------------------------
-
+#是非极大值抑制
 import numpy as np
 
 def py_cpu_nms(dets, thresh):

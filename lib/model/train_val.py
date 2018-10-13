@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # --------------------------------------------------------
 # Tensorflow Faster R-CNN
 # Licensed under The MIT License [see LICENSE for details]
@@ -329,11 +330,9 @@ def get_training_roidb(imdb):
     print('Appending horizontally-flipped training examples...')
     imdb.append_flipped_images()
     print('done')
-
   print('Preparing training data...')
   rdl_roidb.prepare_roidb(imdb)
   print('done')
-
   return imdb.roidb
 
 

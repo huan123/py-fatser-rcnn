@@ -4,6 +4,14 @@
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Ross Girshick and Sean Bell
 # --------------------------------------------------------
+#生成多尺度和多比例的锚点
+# 输入：默认参数(base_size = 16, ratios =[0.5, 1, 2],scales = [8,16,32])
+# 过程：step1.构造一个参考ref_anchor[0,0,15,15]
+# 　　　step2.保持ref_anchor的中心点不变，将ref_anchor的面积按[0.5，1，2]缩放
+# 　　　　　　　　得到3种anchor：[-3.5,2,18.5,13.][0,0,15,15,][2.5,-3,12.5,18]
+# 　　　step3.将step2得到的3种anchor保持中心点不变，各自的边长缩放[8,16,32]倍
+# 　　　　　　　　如此得到9种anchor。
+# 输出：_anchors：9个中心点一致，面积不相同的anchor
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

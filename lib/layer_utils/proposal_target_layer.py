@@ -4,10 +4,16 @@
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Ross Girshick, Sean Bell and Xinlei Chen
 # --------------------------------------------------------
+
+#对于每一个object proposal 生成训练的目标和标签，分类标签从0-k，对于标签>0的box进行回归。
+# （注意，同anchor_target_layer.py不同，两者一个是生成anchor，一个是生成proposal）
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 import numpy as np
 import numpy.random as npr
 from model.config import cfg

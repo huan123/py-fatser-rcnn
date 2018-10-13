@@ -1,6 +1,6 @@
 import os.path as osp
 import sys
-
+#用来初始化路径的，也就是之后的路径会join（path，*）
 def add_path(path):
     if path not in sys.path:
         sys.path.insert(0, path)

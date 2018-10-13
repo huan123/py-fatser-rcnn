@@ -8,9 +8,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from lib.model.config import cfg
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
+from model.config import cfg
 #from nms.gpu_nms import gpu_nms
-from lib.nms.cpu_nms import cpu_nms
+from nms.cpu_nms import cpu_nms
 
 
 

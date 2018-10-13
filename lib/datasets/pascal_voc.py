@@ -8,9 +8,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
+
 import os
-from lib.datasets.imdb import imdb
-import lib.datasets.ds_utils as ds_utils
+from datasets.imdb import imdb
+import datasets.ds_utils as ds_utils
 import xml.etree.ElementTree as ET
 import numpy as np
 import scipy.sparse
@@ -20,7 +23,7 @@ import pickle
 import subprocess
 import uuid
 from .voc_eval import voc_eval
-from lib.model.config import cfg
+from model.config import cfg
 
 
 class pascal_voc(imdb):
@@ -74,7 +77,7 @@ class pascal_voc(imdb):
     assert os.path.exists(image_path), \
       'Path does not exist: {}'.format(image_path)
     return image_path
-
+  #将file中文件名读入一个列表，并返回，文件于/VOCdevkit2007/VOC2007/ImageSets/Main/val.txt
   def _load_image_set_index(self):
     """
     Load the indexes listed in this dataset's image set file.
@@ -95,6 +98,7 @@ class pascal_voc(imdb):
     """
     return os.path.join(cfg.DATA_DIR, 'VOCdevkit' + self._year)
 
+  # 返回ground-truth的ROI构成的数据库
   def gt_roidb(self):
     """
     Return the database of ground-truth regions of interest.
@@ -138,6 +142,10 @@ class pascal_voc(imdb):
       box_list = pickle.load(f)
     return self.create_roidb_from_box_list(box_list, gt_roidb)
 
+  # 对一个ground-truth进行处理，返回每个ground-truth上所有object的基本信息,包含在一个
+  # dict中，一个ground-truth对应一个dict，dict的内容
+  # 包括boxes：bounding-box坐标，gt_classes：类别,overlaps:?,
+  # seg_area:bounding-box面积
   def _load_pascal_annotation(self, index):
     """
     Load image and bounding boxes info from XML file in the PASCAL VOC
@@ -217,6 +225,9 @@ class pascal_voc(imdb):
                     format(index, dets[k, -1],
                            dets[k, 0] + 1, dets[k, 1] + 1,
                            dets[k, 2] + 1, dets[k, 3] + 1))
+          # todo 为了测试自己使用voc训练的数据集，只测试10个，因此增加 if  im_ind ==9 : break
+          # if im_ind == 9:
+          #   break
 
   def _do_python_eval(self, output_dir='output'):
     annopath = os.path.join(
@@ -243,7 +254,8 @@ class pascal_voc(imdb):
       filename = self._get_voc_results_file_template().format(cls)
       rec, prec, ap = voc_eval(
         filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
-        use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
+
+         use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
       aps += [ap]
       print(('AP for {} = {:.4f}'.format(cls, ap)))
       with open(os.path.join(output_dir, cls + '_pr.pkl'), 'wb') as f:

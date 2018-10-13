@@ -10,9 +10,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
+
 __sets = {}
-from lib.datasets.pascal_voc import pascal_voc
-from lib.datasets.coco import coco
+from datasets.pascal_voc import pascal_voc
+from datasets.coco import coco
 
 import numpy as np
 

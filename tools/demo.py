@@ -133,7 +133,7 @@ if __name__ == '__main__':
     #                           NETS[demonet][0])
 
 
-    tfmodel = "/Users/huan/code/PycharmProjects/tf-faster-rcnn/output/vgg16/voc_2007_trainval+voc_2012_trainval/default/vgg16_faster_rcnn_iter_110000.ckpt"
+    tfmodel = "/Users/huan/code/PycharmProjects/cpu-tf-faster-rcnn/output/vgg16/voc_2007_trainval+voc_2012_trainval/default/vgg16_faster_rcnn_iter_110000.ckpt"
     if not os.path.isfile(tfmodel + '.meta'):
         raise IOError(('{:s} not found.\nDid you download the proper networks from '
                        'our server and place them properly?').format(tfmodel + '.meta'))

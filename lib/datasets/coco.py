@@ -7,6 +7,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+# sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 from datasets.imdb import imdb
 import datasets.ds_utils as ds_utils
 from model.config import cfg
@@ -271,6 +273,9 @@ class coco(imdb):
           'category_id': cat_id,
           'bbox': [xs[k], ys[k], ws[k], hs[k]],
           'score': scores[k]} for k in range(dets.shape[0])])
+       #todo 为了测试自己训练的coco数据集的模型，临时增加一个index = 331352，来得到测试结果，测试完后注释掉
+      # if index == 331352:
+      #   return results
     return results
 
   def _write_coco_results_file(self, all_boxes, res_file):

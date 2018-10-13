@@ -102,7 +102,8 @@ def voc_eval(detpath,
   # first load gt
   if not os.path.isdir(cachedir):
     os.mkdir(cachedir)
-  cachefile = os.path.join(cachedir, '%s_annots.pkl' % imagesetfile)
+  #因为出现EOFError: Ran out of input 网上说版本过旧，替换新版本 cachefile = os.path.join(cachedir, ('%s_annots.pkl' % 'imagesetfile'))
+  cachefile = os.path.join(cachedir, ('%s_annots.pkl' % 'imagesetfile'))
   # read list of images
   with open(imagesetfile, 'r') as f:
     lines = f.readlines()

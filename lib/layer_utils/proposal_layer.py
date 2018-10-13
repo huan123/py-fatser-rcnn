@@ -3,10 +3,26 @@
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Ross Girshick and Xinlei Chen
 # --------------------------------------------------------
+# 输入：anchors：特征图产生的(HW*9)个anchor
+# 　　　　　rpn_bbox_pred：rpn网络预测每个anchor距离它最近的gt框的预测偏移量
+# 　　　　　rpn_cls_score：rpn网络预测每个anchor内是否有物体的分数
+# 　　过程：将每个anchor的4个参数(中心点x,y,长,宽)与rpn_bbox_pred中对应的anchor偏移量进行运算，
+# 　　　　　得到rpn网络预测每个anchor的最终位置rpn_output_rois。
+# 　　　　　根据 rpn_cls_score分数从大到校将anchor进行排列，选取12000个候选框（测试时6000个）
+# 　　　　　将选取出来的12000个候选框先通过nms得到nms。
+# 　　输出：rpn_output_rois（训练时2000个，测试时300个）
+
+#这个函数是用来将RPN的输出转变为object proposals的,
+# 作者新增了ProposalLayer类，这个类中，重新了set_up和forward函数，
+# 其中forward实现了：生成锚点box、对于每个锚点提供box的参数细节、将预测框切成图像、删除宽、高小于阈值的框、
+# 将所有的(proposal, score) 对排序、获取 pre_nms_topN proposals、获取NMS 、获取 after_nms_topN proposals。
+# （注：NMS，nonmaximum suppression，非极大值抑制）
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 import tensorflow as tf
 import numpy as np
 from model.config import cfg

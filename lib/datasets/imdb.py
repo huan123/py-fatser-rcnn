@@ -8,6 +8,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
+
 import os
 import os.path as osp
 import PIL
@@ -15,6 +18,14 @@ from utils.cython_bbox import bbox_overlaps
 import numpy as np
 import scipy.sparse
 from model.config import cfg
+
+#split = ['train', 'val', 'trainval', 'test']
+#image_set: split
+#devkit_path: config.DATA_DIR(root/data/) + VOCdevkit + year
+#data_path: devkit_path + '/' + 'VOC' + year
+#image_index: a list read image name from 例如，root/data + /VOCdevkit2007/VOC2007/ImageSets/Main/{image_set}.txt
+#roidb: gt_roidb得到（cfg.TRAIN.PROPOSAL_METHOD=gt导致了此操作）
+#num_classes： 类别的长度
 
 
 class imdb(object):
@@ -216,6 +227,8 @@ class imdb(object):
   def create_roidb_from_box_list(self, box_list, gt_roidb):
     assert len(box_list) == self.num_images, \
       'Number of boxes must match number of ground-truth images'
+    #roidb: gt_roidb得到（cfg.TRAIN.PROPOSAL_METHOD=gt导致了此操作）
+    #gt_roidb读取xml中的内容中得到部分信息
     roidb = []
     for i in range(self.num_images):
       boxes = box_list[i]
@@ -238,7 +251,7 @@ class imdb(object):
         'gt_classes': np.zeros((num_boxes,), dtype=np.int32),
         'gt_overlaps': overlaps,
         'flipped': False,
-        'seg_areas': np.zeros((num_boxes,), dtype=np.float32),
+        'seg_areas': np.zeros((num_boxes,), dtype=np.float32), #seg_areas:box的面积
       })
     return roidb
 
