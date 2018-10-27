@@ -8,13 +8,12 @@ from __future__ import division
 from __future__ import print_function
 
 import sys
-sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/data')
+# sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 from datasets.imdb import imdb
 import datasets.ds_utils as ds_utils
 from model.config import cfg
 import os.path as osp
 import sys
-import cv2
 import os
 import numpy as np
 import scipy.sparse
@@ -25,10 +24,9 @@ import uuid
 # COCO API
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
-
-
-
 from pycocotools import mask as COCOmask
+
+
 class coco(imdb):
   def __init__(self, image_set, year):
     imdb.__init__(self, 'coco_' + year + '_' + image_set)
@@ -50,7 +48,8 @@ class coco(imdb):
     # Default to roidb handler
     self.set_proposal_method('gt')
     self.competition_mode(False)
-    # Some image sets aref "views" (i.e. subsets) into others.
+
+    # Some image sets are "views" (i.e. subsets) into others.
     # For example, minival2014 is a random 5000 image subset of val2014.
     # This mapping tells us where the view's images and proposals come from.
     self._view_map = {
@@ -94,6 +93,7 @@ class coco(imdb):
     """
     Construct an image path from the image's "index" identifier.
     """
+    #todo 发现这里是加载图片的地方
     # Example image path for index=119993:
     #   images/train2014/COCO_train2014_000000119993.jpg
     file_name = ('COCO_' + self._data_name + '_' +
@@ -116,16 +116,8 @@ class coco(imdb):
       print('{} gt roidb loaded from {}'.format(self.name, cache_file))
       return roidb
 
-    #todo 要记得查看gt_roidb是不是有空元素
-    # gt_roidb = [self._load_coco_annotation(index)
-    #             for index in self._image_index]
-    gt_roidb = []
-    count = 0
-    for index in self._image_index:
-      index_gt_roidb = self._load_coco_annotation(index)
-      if index_gt_roidb !=  None:
-        count = count + 1
-        gt_roidb.append(index_gt_roidb)
+    gt_roidb = [self._load_coco_annotation(index)
+                for index in self._image_index]
 
     with open(cache_file, 'wb') as fid:
       pickle.dump(gt_roidb, fid, pickle.HIGHEST_PROTOCOL)
@@ -189,154 +181,6 @@ class coco(imdb):
             'gt_overlaps': overlaps,
             'flipped': False,
             'seg_areas': seg_areas}
-
-  #val
-  # def _load_coco_annotation(self, index):
-  #   """
-  #   Loads COCO bounding-box instance annotations. Crowd instances are
-  #   handled by marking their overlaps (with all categories) to -1. This
-  #   overlap value means that crowd "instances" are excluded from training.
-  #   """
-  #   im_ann = self._COCO.loadImgs(index)[0]
-  #   width = im_ann['width']
-  #   height = im_ann['height']
-  #
-  #   annIds = self._COCO.getAnnIds(imgIds=index, iscrowd=None)
-  #   objs = self._COCO.loadAnns(annIds)
-  #   # Sanitize bboxes -- some are invalid
-  #   valid_objs = []
-  #   for obj in objs:
-  #     x1 = np.max((0, obj['bbox'][0]))
-  #     y1 = np.max((0, obj['bbox'][1]))
-  #     x2 = np.min((width - 1, x1 + np.max((0, obj['bbox'][2] - 1))))
-  #     y2 = np.min((height - 1, y1 + np.max((0, obj['bbox'][3] - 1))))
-  #     if obj['area'] > 0 and x2 >= x1 and y2 >= y1:
-  #       obj['clean_bbox'] = [x1, y1, x2, y2]
-  #       valid_objs.append(obj)
-  #   objs = valid_objs
-  #   num_objs = len(objs)
-  #
-  #   boxes = np.zeros((num_objs, 4), dtype=np.uint16)
-  #   gt_classes = np.zeros((num_objs), dtype=np.int32)
-  #   overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
-  #   seg_areas = np.zeros((num_objs), dtype=np.float32)
-  #
-  #   # Lookup table to map from COCO category ids to our internal class
-  #   # indices
-  #   coco_cat_id_to_class_ind = dict([(self._class_to_coco_cat_id[cls],
-  #                                     self._class_to_ind[cls])
-  #                                    for cls in self._classes[1:]])
-  #
-  #   flag = 0
-  #   for ix, obj in enumerate(objs):
-  #     cls = coco_cat_id_to_class_ind[obj['category_id']]
-  #     if cls == 1:
-  #       flag = 1
-  #       boxes[ix, :] = obj['clean_bbox']
-  #       gt_classes[ix] = cls
-  #       seg_areas[ix] = obj['area']
-  #       if obj['iscrowd']:
-  #         # Set overlap to -1 for all classes for crowd objects
-  #         # so they will be excluded during training
-  #         overlaps[ix, :] = -1.0
-  #       else:
-  #         overlaps[ix, cls] = 1.0
-  #   if flag == 1 and self._data_name == 'val2014':
-  #       #获取图片名字
-  #       image_name = im_ann['file_name']
-  #       #图片路径
-  #       image_path = osp.join(self._data_path, 'images',
-  #                         self._data_name, image_name)
-  #       image = cv2.imread(image_path)
-  #
-  #       #todo 写入成功后注释就可以了
-  #       image_path = osp.join(self._data_path, 'images','person_val2014', image_name)
-  #       cv2.imwrite(image_path, image)
-  #
-  #
-  #
-  #   ds_utils.validate_boxes(boxes, width=width, height=height)
-  #   overlaps = scipy.sparse.csr_matrix(overlaps)
-  #   return {'width': width,
-  #           'height': height,
-  #           'boxes': boxes,
-  #           'gt_classes': gt_classes,
-  #           'gt_overlaps': overlaps,
-  #           'flipped': False,
-  #           'seg_areas': seg_areas}
-
-    # #todo 找出含有人的图片的并且记录id
-    # flag = 0
-    # count = 0
-    # if self._data_name == 'train2014':
-    #   for ix, obj in enumerate(objs):
-    #     cls = coco_cat_id_to_class_ind[obj['category_id']]
-    #     if cls == 1 :
-    #       count = count + 1
-    #       flag = 1
-    #       boxes[ix, :] = obj['clean_bbox']
-    #       gt_classes[ix] = cls
-    #       seg_areas[ix] = obj['area']
-    #       if obj['iscrowd']:
-    #         # Set overlap to -1 for all classes for crowd objects
-    #         # so they will be excluded during training
-    #         overlaps[ix, :] = -1.0
-    #       else:
-    #         overlaps[ix, cls] = 1.0
-    #
-    #   if flag == 1:
-    #     #todo 将图片保存文件
-    #     #获取图片名字
-    #     image_name = im_ann['file_name']
-    #     #图片路径
-    #     image_path = osp.join(self._data_path, 'images',
-    #                       self._data_name, image_name)
-    #     image = cv2.imread(image_path)
-    #
-    #     #todo 写入成功后注释就可以了
-    #     image_path = osp.join(self._data_path, 'images','person_train2014', image_name)
-    #     #cv2.imwrite(image_path, image)
-    #
-    #     ds_utils.validate_boxes(boxes, width=width, height=height)
-    #     overlaps = scipy.sparse.csr_matrix(overlaps)
-    #
-    #     #todo 将图片名字保存到txt中
-    #
-    #     # image_set_file = osp.join(self._data_path, 'images', 'per_train2014.txt')
-    #     # with open(image_set_file, 'a+') as f:
-    #     #   f.write(str(index))
-    #     #   f.write('\n')
-    #
-    #     return {'width': width,
-    #             'height': height,
-    #             'boxes': boxes,
-    #             'gt_classes': gt_classes,
-    #             'gt_overlaps': overlaps,
-    #             'flipped': False,
-    #             'seg_areas': seg_areas}
-    # else:
-    #   #todo
-    #   for ix, obj in enumerate(objs):
-    #     cls = coco_cat_id_to_class_ind[obj['category_id']]
-    #     boxes[ix, :] = obj['clean_bbox']
-    #     gt_classes[ix] = cls
-    #     seg_areas[ix] = obj['area']
-    #     if obj['iscrowd']:
-    #       # Set overlap to -1 for all classes for crowd objects
-    #       # so they will be excluded during training
-    #       overlaps[ix, :] = -1.0
-    #     else:
-    #       overlaps[ix, cls] = 1.0
-    #
-    #   ds_utils.validate_boxes(boxes, width=width, height=height)
-    #   overlaps = scipy.sparse.csr_matrix(overlaps)
-    #   return {'width': width,
-    #           'height': height,
-    #           'boxes': boxes,
-    #           'gt_classes': gt_classes,
-    #           'gt_overlaps': overlaps,
-    #           'flipped': False,
-    #           'seg_areas': seg_areas}
 
   def _get_widths(self):
     return [r['width'] for r in self.roidb]

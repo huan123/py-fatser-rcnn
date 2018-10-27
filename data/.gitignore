@@ -2,5 +2,12 @@ selective_search*
 imagenet_*
 fast_rcnn_*
 VOCdevkit*
-coco*
+
+coco/*
+!coco/PythonAPI
+coco/PythonAPI/*
+!coco/PythonAPI/pycocotools/
+coco/PythonAPI/pycocotools/*
+!coco/PythonAPI/pycocotools/coco.py
+!coco/PythonAPI/pycocotools/coco-bak.py
 cache
