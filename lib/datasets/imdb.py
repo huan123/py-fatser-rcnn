@@ -9,7 +9,6 @@ from __future__ import division
 from __future__ import print_function
 
 import sys
-sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 
 import os
 import os.path as osp
@@ -70,6 +69,7 @@ class imdb(object):
     self._roidb_handler = val
 
   def set_proposal_method(self, method):
+    #todo method = self.gt_roidb
     method = eval('self.' + method + '_roidb')
     self.roidb_handler = method
 

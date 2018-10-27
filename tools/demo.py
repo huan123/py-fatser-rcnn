@@ -17,7 +17,6 @@ from __future__ import print_function
 
 #import _init_paths
 import sys
-sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 
 import tools._init_paths
 from model.config import cfg

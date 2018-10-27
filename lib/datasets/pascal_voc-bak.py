@@ -9,7 +9,6 @@ from __future__ import division
 from __future__ import print_function
 
 import sys
-sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 import cv2
 import os
 from datasets.imdb import imdb
@@ -42,12 +41,9 @@ class pascal_voc(imdb):
                      'cow', 'diningtable', 'dog', 'horse',
                      'motorbike', 'person', 'pottedplant',
                      'sheep', 'sofa', 'train', 'tvmonitor')
-
     self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))
     self._image_ext = '.jpg'
-    #todo 暂时设置image的数量
     self._image_index = self._load_image_set_index()
-
     # Default to roidb handler
     self._roidb_handler = self.gt_roidb
     self._salt = str(uuid.uuid4())
@@ -87,16 +83,8 @@ class pascal_voc(imdb):
     """
     # Example path to image set file:
     # self._devkit_path + /VOCdevkit2007/VOC2007/ImageSets/Main/val.txt
-    #todo 更换加载txt的目录
-    if self._image_set == "trainval":
-      image_set_file = os.path.join(self._data_path, 'PersonImageSets', 'Main',
-                                    self._image_set + '.txt')
-    else:
-      image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
-                                     self._image_set + '.txt')
-    # image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
-    #                               self._image_set + '.txt')
-
+    image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
+                                  self._image_set + '.txt')
     assert os.path.exists(image_set_file), \
       'Path does not exist: {}'.format(image_set_file)
     with open(image_set_file) as f:
@@ -116,7 +104,6 @@ class pascal_voc(imdb):
 
     This function loads/saves from/to a cache file to speed up future calls.
     """
-
     cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
     if os.path.exists(cache_file):
       with open(cache_file, 'rb') as fid:
@@ -126,20 +113,6 @@ class pascal_voc(imdb):
           roidb = pickle.load(fid, encoding='bytes')
       print('{} gt roidb loaded from {}'.format(self.name, cache_file))
       return roidb
-    # todo 判断是不是训练集 暂时删除图片,删除txt中的图片的名字
-    # if self._image_set == 'trainval':
-    #   #todo 删除txt中图片的名字
-    #   image_set_file = os.path.join(self._data_path, 'PersonImageSets', 'Main',
-    #                                 self._image_set + '.txt')
-    #   with open(image_set_file, 'r+') as f:
-    #     f.truncate()
-    #   #todo 删除文件中的图片
-    #   paths = "/Users/huan/code/PycharmProjects/cpu-tf-faster-rcnn/data/VOCdevkit/VOC2007/PersonJPEGImages/"
-    #   for im_name in os.listdir(paths):
-    #     path_file = os.path.join(paths, im_name)
-    #     os.remove(path_file)
-
-
 
     gt_roidb = [self._load_pascal_annotation(index)
                 for index in self.image_index]
@@ -168,7 +141,6 @@ class pascal_voc(imdb):
       box_list = pickle.load(f)
     return self.create_roidb_from_box_list(box_list, gt_roidb)
 
-  #todo 对xml文件进行处理，得到关于人的txt和图片
   # 对一个ground-truth进行处理，返回每个ground-truth上所有object的基本信息,包含在一个
   # dict中，一个ground-truth对应一个dict，dict的内容
   # 包括boxes：bounding-box坐标，gt_classes：类别,overlaps:?,
@@ -212,49 +184,6 @@ class pascal_voc(imdb):
       overlaps[ix, cls] = 1.0
       seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
 
-    # #todo 增加自己要写入的txt文件
-    image_set_file = os.path.join(self._data_path, 'PersonImageSets', 'Main',
-                                  self._image_set + '.txt')
-
-    #todo 注释上面的for循环只提取标注信息中人person 修改for循环
-    # Load object bounding boxes into a data frame.
-    flag = 0
-    for ix, obj in enumerate(objs):
-      bbox = obj.find('bndbox')
-      # Make pixel indexes 0-based
-      x1 = float(bbox.find('xmin').text) - 1
-      y1 = float(bbox.find('ymin').text) - 1
-      x2 = float(bbox.find('xmax').text) - 1
-      y2 = float(bbox.find('ymax').text) - 1
-      cls = self._class_to_ind[obj.find('name').text.lower().strip()]
-      name = obj.find('name')
-
-      if self._image_set == 'trainval':
-        #todo 写入图片
-        if name.text == 'person':
-          # flag = 1
-          # path_name = self.image_path_from_index(index)
-          # image = cv2.imread(path_name)
-          # image_name = "/Users/huan/code/PycharmProjects/cpu-tf-faster-rcnn/data/VOCdevkit/VOC2007/PersonJPEGImages/%s.jpg" % (
-          #   index)
-          # cv2.imwrite(image_name, image)
-
-          boxes[ix, :] = [x1, y1, x2, y2]
-          gt_classes[ix] = cls
-          overlaps[ix, cls] = 1.0
-          seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
-
-      else:
-        boxes[ix, :] = [x1, y1, x2, y2]
-        gt_classes[ix] = cls
-        overlaps[ix, cls] = 1.0
-        seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
-    # ##todo 写入文件图片索引
-    # if flag ==1 :
-    #     with open(image_set_file, 'a+') as f:
-    #       f.write(index)
-    #       f.write('\n')
-
     overlaps = scipy.sparse.csr_matrix(overlaps)
 
     return {'boxes': boxes,
@@ -262,56 +191,6 @@ class pascal_voc(imdb):
             'gt_overlaps': overlaps,
             'flipped': False,
             'seg_areas': seg_areas}
-
-  # def _load_pascal_annotation(self, index):
-  #   """
-  #   Load image and bounding boxes info from XML file in the PASCAL VOC
-  #   format.
-  #   """
-  #   #记载xml文件
-  #   filename = os.path.join(self._data_path, 'Annotations', index + '.xml')
-  #   tree = ET.parse(filename)
-  #   objs = tree.findall('object')
-  #   if not self.config['use_diff']:
-  #     # Exclude the samples labeled as difficult
-  #     non_diff_objs = [
-  #       obj for obj in objs if int(obj.find('difficult').text) == 0]
-  #     # if len(non_diff_objs) != len(objs):
-  #     #     print 'Removed {} difficult objects'.format(
-  #     #         len(objs) - len(non_diff_objs))
-  #     objs = non_diff_objs
-  #   num_objs = len(objs)
-  #
-  #   boxes = np.zeros((num_objs, 4), dtype=np.uint16)
-  #   gt_classes = np.zeros((num_objs), dtype=np.int32)
-  #   overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
-  #   # "Seg" area for pascal is just the box area
-  #   seg_areas = np.zeros((num_objs), dtype=np.float32)
-  #
-  #   # Load object bounding boxes into a data frame.
-  #   for ix, obj in enumerate(objs):
-  #     bbox = obj.find('bndbox')
-  #     #todo zjia pban
-  #     name = obj.find('name')
-  #     if name.text == 'person':
-  #       # Make pixel indexes 0-based
-  #       x1 = float(bbox.find('xmin').text) - 1
-  #       y1 = float(bbox.find('ymin').text) - 1
-  #       x2 = float(bbox.find('xmax').text) - 1
-  #       y2 = float(bbox.find('ymax').text) - 1
-  #       cls = self._class_to_ind[obj.find('name').text.lower().strip()]
-  #       boxes[ix, :] = [x1, y1, x2, y2]
-  #       gt_classes[ix] = cls
-  #       overlaps[ix, cls] = 1.0
-  #       seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
-  #   overlaps = scipy.sparse.csr_matrix(overlaps)
-  #
-  #   return {'boxes': boxes,
-  #           'gt_classes': gt_classes,
-  #           'gt_overlaps': overlaps,
-  #           'flipped': False,
-  #           'seg_areas': seg_areas}
-
 
   def _get_comp_id(self):
     comp_id = (self._comp_id + '_' + self._salt if self.config['use_salt']
@@ -328,7 +207,6 @@ class pascal_voc(imdb):
       'Main',
       filename)
     return path
-
 
   def _write_voc_results_file(self, all_boxes):
     for cls_ind, cls in enumerate(self.classes):
@@ -357,19 +235,12 @@ class pascal_voc(imdb):
       'VOC' + self._year,
       'Annotations',
       '{:s}.xml')
-    #todo 修改imagefile
     imagesetfile = os.path.join(
       self._devkit_path,
       'VOC' + self._year,
-      'PersonImageSets',
+      'ImageSets',
       'Main',
-       self._image_set + '.txt')
-    # imagesetfile = os.path.join(
-    #   self._devkit_path,
-    #   'VOC' + self._year,
-    #   'ImageSets',
-    #   'Main',
-    #   self._image_set + '.txt')
+      self._image_set + '.txt')
     cachedir = os.path.join(self._devkit_path, 'annotations_cache')
     aps = []
     # The PASCAL VOC metric changed in 2010

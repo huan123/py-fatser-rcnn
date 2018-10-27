@@ -54,7 +54,7 @@
 # --set
 # ANCHOR_SCALES
 # [4,8,16,32]
-
+#
 
 
 #train_net.py：使用fast rcnn，训练自己数据集的网络模型
@@ -137,8 +137,6 @@ def combined_roidb(imdb_names):
     for r in roidbs[1:]:
       roidb.extend(r)
     tmp = get_imdb(imdb_names.split('+')[1])
-
-
     imdb = datasets.imdb.imdb(imdb_names, tmp.classes)
   else:
     imdb = get_imdb(imdb_names)
@@ -166,6 +164,7 @@ if __name__ == '__main__':
   imdb, roidb = combined_roidb(args.imdb_name)
   print('{:d} roidb entries'.format(len(roidb)))
 
+  #todo 为了生成pkl，先将除了训练以外的注释掉
   # output directory where the models are saved
   output_dir = get_output_dir(imdb, args.tag)
   print('Output will be saved to `{:s}`'.format(output_dir))
@@ -177,6 +176,8 @@ if __name__ == '__main__':
   # also add the validation set, but with no flipping images
   orgflip = cfg.TRAIN.USE_FLIPPED
   cfg.TRAIN.USE_FLIPPED = False
+  #todo 测试被注释
+
   _, valroidb = combined_roidb(args.imdbval_name)
   print('{:d} validation roidb entries'.format(len(valroidb)))
   cfg.TRAIN.USE_FLIPPED = orgflip
@@ -194,7 +195,7 @@ if __name__ == '__main__':
     net = mobilenetv1()
   else:
     raise NotImplementedError
-    
+
   train_net(net, imdb, roidb, valroidb, output_dir, tb_dir,
             pretrained_model=args.weight,
             max_iters=args.max_iters)

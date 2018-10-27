@@ -22,7 +22,6 @@ from __future__ import division
 from __future__ import print_function
 
 import sys
-sys.path.insert(0, '/Users/huan/code/PycharmProjects/tf-faster-rcnn/lib')
 import tensorflow as tf
 import numpy as np
 from model.config import cfg
